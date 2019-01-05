@@ -89,16 +89,12 @@ namespace Score4
 
         private int findColumnBottom(int col)
         {
-            int bottom = tableRows - 1;
-            for(int r = 1; r < tableRows; r++)
+            int r = tableRows - 1;
+            while (holes[r, col] != null && r > 0)
             {
-                if (holes[r, col] != null)
-                {
-                    bottom = r - 1;
-                    break;
-                }
+                r--;
             }
-            return bottom;
+            return r;
         }
 
         private void clearBoard()
