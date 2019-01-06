@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Media;
 
 namespace Score4
@@ -23,8 +19,8 @@ namespace Score4
         // OVERLOADED METHODS
         public override string ToString()
         {
-            if (TeamColor == Colors.Blue)
-                return "Blue";
+            if (TeamColor == Colors.Yellow)
+                return "Yellow";
             else
                 return "Red";
         }

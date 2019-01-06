@@ -14,7 +14,8 @@ namespace Score4
 
         public PawnTable(): base()
         {
-            holes = new Team[tableRows, tableCols];
+            cells = new Team[tableRows, tableCols];
+            colSum = new int[tableCols];
             clearBoard();
             StartPos = tableCols / 2;
         }
@@ -65,10 +66,11 @@ namespace Score4
 
         public void InsertPawn()
         {
-            int bottom = findColumnBottom(CurrentPos);
+            int bottom = tableRows - colSum[CurrentPos] - 1;
             if (bottom > 0)
             {
-                holes[bottom, CurrentPos] = currentPawn.PawnTeam;
+                colSum[CurrentPos]++;
+                cells[bottom, CurrentPos] = currentPawn.PawnTeam;
                 Grid.SetRow(currentPawn, bottom);
                 Grid.SetColumn(currentPawn, CurrentPos);                
                 PawnPlaced(checkForWinner(bottom, CurrentPos));
@@ -80,31 +82,37 @@ namespace Score4
             clearBoard();
         }
 
+        public bool IsBoardFull()
+        {
+            int c = 0;
+            while(c<tableCols)
+            {
+                if (cells[1, c] == null)
+                {
+                    return false;
+                }
+                c++;
+            }
+            return true;
+        }
+
         // PRIVATE MEMBERS
 
         private int tableRows = 7;
         private int tableCols = 7;
-        private Team[,] holes;
+        private int[] colSum;
+        private Team[,] cells;
         private Pawn currentPawn;
-
-        private int findColumnBottom(int col)
-        {
-            int r = tableRows - 1;
-            while (holes[r, col] != null && r > 0)
-            {
-                r--;
-            }
-            return r;
-        }
 
         private void clearBoard()
         {
-            for(int r = 0; r < tableRows; r++)
+            for(int c = 0; c < tableCols; c++)
             {
-                for (int c = 0; c < tableCols; c++)
+                for (int r = 0; r < tableRows; r++)
                 {
-                    holes[r, c] = null;
+                    cells[r, c] = null;
                 }
+                colSum[c] = 0;
             }
             this.Children.Clear();
         }
@@ -128,16 +136,18 @@ namespace Score4
                     r >= 1 && c >= 0 && r < tableRows && c < tableCols && cnt < winSeq ;
                     r += deltaR[d], c += deltaC[d], cnt++)
                 {
-                    if (holes[r, c] == currentPawn.PawnTeam)
+                    if (cells[r, c] == currentPawn.PawnTeam)
                         seq[d]++;
                     else
                         break;
                 }
-                if (seq[d] >= winSeq)
-                {
+                d++;
+            }
+            d = 0;
+            while (d < 4)
+            {
+                if (seq[d] + seq[d + 4] >= winSeq + 1)
                     teamWon = currentPawn.PawnTeam;
-                    break;
-                }
                 d++;
             }
             return teamWon;

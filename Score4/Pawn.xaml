@@ -8,13 +8,14 @@
              d:DesignHeight="45" d:DesignWidth="45">
     <Ellipse x:Name="pawnArea" Stroke="Black" StrokeThickness="2">
         <Ellipse.Fill>
-            <RadialGradientBrush>
+            <SolidColorBrush x:Name="pawnColor" />
+<!--            <RadialGradientBrush>
                 <GradientStopCollection x:Name="pawnGradStopColl">
                     <GradientStop Color="Blue" Offset="0" />
                     <GradientStop Color="Yellow" Offset="1" />
                     <GradientStop Color="Blue" Offset="0.8" />
                 </GradientStopCollection>
-            </RadialGradientBrush>
+            </RadialGradientBrush> -->
         </Ellipse.Fill>
     </Ellipse>
 </UserControl>

@@ -47,8 +47,8 @@ namespace Score4
         {
             InitializeComponent();
             grdBoard.PawnPlaced += Table_PawnPlaced;
-            teamBlue = new Team(Colors.Blue);
-            teamRed = new Team(Colors.Red);
+            team1 = new Team(Colors.Yellow);
+            team2 = new Team(Colors.Red);
             state = GameState.ReadyToStart;
         }
 
@@ -61,12 +61,20 @@ namespace Score4
                 winner.AddWinPoints();
                 state = GameState.Finished;
                 updateScores();
-                MessageBox.Show(winner.ToString() + " team has won the match", "Winner");
+                MessageBox.Show(winner + " team has won the match", "Winner");
             }
             else
             {
-                changeTurn();
-                grdBoard.CreateNewPlayingPawn(currentTeam);
+                if (grdBoard.IsBoardFull())
+                {
+                    state = GameState.Finished;
+                    MessageBox.Show("It is a draw!", "Draw");
+                }
+                else
+                {
+                    changeTurn();
+                    grdBoard.CreateNewPlayingPawn(currentTeam);
+                }
             }
         }
 
@@ -77,19 +85,19 @@ namespace Score4
 
         private void BtResetScores_Click(object sender, RoutedEventArgs e)
         {
-            teamBlue.ResetScore();
-            teamRed.ResetScore();
+            team1.ResetScore();
+            team2.ResetScore();
             updateScores();
         }
 
         private void Window_KeyUp(object sender, KeyEventArgs e)
         {
-            bool moveLeft = (e.Key == Key.Left && currentTeam == teamBlue)
-                || (e.Key == Key.A && currentTeam == teamRed);
-            bool moveRight = (e.Key == Key.Right && currentTeam == teamBlue)
-                || (e.Key == Key.D && currentTeam == teamRed);
-            bool insertPawn = (e.Key == Key.Down && currentTeam == teamBlue)
-                || (e.Key == Key.S && currentTeam == teamRed);
+            bool moveLeft = (e.Key == Key.Left && currentTeam == team1)
+                || (e.Key == Key.A && currentTeam == team2);
+            bool moveRight = (e.Key == Key.Right && currentTeam == team1)
+                || (e.Key == Key.D && currentTeam == team2);
+            bool insertPawn = (e.Key == Key.Down && currentTeam == team1)
+                || (e.Key == Key.S && currentTeam == team2);
             if (state == GameState.Started)
             {
                 if (moveLeft)
@@ -104,8 +112,8 @@ namespace Score4
         // PRIVATE MEMBERS
 
         private GameState state { get; set; }
-        private Team teamBlue;
-        private Team teamRed;
+        private Team team1;
+        private Team team2;
         private Team currentTeam;
 
         private void startGame()
@@ -113,7 +121,7 @@ namespace Score4
             if (state != GameState.Started)
             {
                 state = GameState.Started;
-                currentTeam = teamBlue;
+                currentTeam = team1;
                 grdBoard.ClearBoard();
                 grdBoard.CreateNewPlayingPawn(currentTeam);
                 updateScores();
@@ -122,13 +130,13 @@ namespace Score4
 
         private void changeTurn()
         {
-            currentTeam = (currentTeam == teamBlue ? teamRed : teamBlue);
+            currentTeam = (currentTeam == team1 ? team2 : team1);
         }
 
         private void updateScores()
         {
-            lbBlueScore.Content = teamBlue.GetScore();
-            lbRedScore.Content = teamRed.GetScore();
+            lbBlueScore.Content = team1.GetScore();
+            lbRedScore.Content = team2.GetScore();
         }
     }
 }
