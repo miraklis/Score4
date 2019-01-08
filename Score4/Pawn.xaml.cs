@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Windows.Media;
 using System.Windows.Controls;
 
 namespace Score4
@@ -17,7 +18,7 @@ namespace Score4
 
         public Pawn(Team team) : this()
         {
-            pawnColor.Color = team.TeamColor;
+            pawnArea.Fill = new SolidColorBrush(team.TeamColor);
             PawnTeam = team;
         }
 

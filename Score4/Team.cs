@@ -25,15 +25,16 @@ namespace Score4
                 return "Red";
         }
 
-        // PUBLIC METHODS
-        public int GetScore()
+        // PUBLIC PROPERTIES
+        public int Score
         {
-            return score;
+            get => score;
         }
 
+        // PUBLIC METHODS
         public void AddWinPoints()
         {
-            score ++;
+            score++;
         }
 
         public void ResetScore()
