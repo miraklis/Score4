@@ -57,7 +57,6 @@ namespace Score4
                 cells[r] = new Team[tableCols];
             }
             colSum = new int[tableCols];
-            rowSum = new int[tableRows];
             clearBoard();
         }
 
@@ -72,24 +71,21 @@ namespace Score4
         private int tableRows;
         private int tableCols;
         private int[] colSum;
-        private int[] rowSum;
+        private int cellsCnt;
         private Team[][] cells;
 
-        private void insertPawn()
+        private void insertPawn(int col)
         {
-            int bottom = tableRows - colSum[selectedPos] - 1;
-            colSum[selectedPos]++;
-            rowSum[bottom]++;
-            cells[bottom][selectedPos] = playingPawn.PawnTeam;
+            grdSelector.Children.Remove(playingPawn);
+            int bottom = tableRows - colSum[col] - 1;
+            colSum[col]++;
+            cellsCnt++;
+            cells[bottom][col] = playingPawn.PawnTeam;
             Grid.SetRow(playingPawn, bottom);
-            Grid.SetColumn(playingPawn, selectedPos);
+            Grid.SetColumn(playingPawn, col);
             grdBoard.Children.Add(playingPawn);
-            pawnPlaced();
-        }
 
-        private void pawnPlaced()
-        {
-            if (checkForWinner() != null)
+            if (checkForWinner(col, currentTeam))
             {
                 currentTeam.AddWinPoints();
                 state = GameState.Finished;
@@ -111,14 +107,14 @@ namespace Score4
             }
         }
 
-        private Team checkForWinner()
+        private bool checkForWinner(int col, Team t)
         {
             int winSeq = 4;
-            int row = tableRows - colSum[selectedPos];
-            if (getMaxScore(selectedPos, row, playingPawn.PawnTeam) >= winSeq)
-                return playingPawn.PawnTeam;
+            int row = tableRows - colSum[col];
+            if (getMaxScore(col, row, t) >= winSeq)
+                return true;
             else
-                return null;
+                return false;
         }
 
         private int getMaxScore(int col, int row, Team t)
@@ -184,16 +180,16 @@ namespace Score4
                 for (int r = 0; r < tableRows; r++)
                 {
                     cells[r][c] = null;
-                    rowSum[r] = 0;
                 }
                 colSum[c] = 0;
             }
+            cellsCnt = 0;
             grdBoard.Children.Clear();
         }
 
         private bool isBoardFull()
         {
-            return (rowSum[0] >= tableCols);
+            return (cellsCnt >= tableCols * tableCols);
         }
 
         private bool isColumnFull(int col)
@@ -210,6 +206,96 @@ namespace Score4
         {
             lbBlueScore.Content = team1.Score;
             lbRedScore.Content = team2.Score;
+        }
+
+        private int findBestMove_AI()
+        {
+            if (isBoardFull())
+                return -1;
+
+            int bestMove = -1;
+
+            // first check if AI can win
+            for (int c=0; bestMove < 0 && c < tableCols; c++)
+            {
+                if (!isColumnFull(c))
+                {
+                    int bottom = tableRows - colSum[c] - 1;
+                    cells[bottom][c] = team2; // play the AI piece virtually
+                    colSum[c]++;
+                    cellsCnt++;
+
+                    if (checkForWinner(c, team2))
+                        bestMove = c;
+
+                    cells[bottom][c] = null; // restore cells
+                    colSum[c]--;
+                    cellsCnt--;
+                }
+            }
+
+            // then check if human wins in next move
+            for (int c = 0; bestMove < 0 && c < tableCols; c++)
+            {
+                if (!isColumnFull(c))
+                {
+                    int bottom = tableRows - colSum[c] - 1;
+                    cells[bottom][c] = team1; // play the human piece virtually
+                    colSum[c]++;
+                    cellsCnt++;
+                    if (checkForWinner(c, team1))
+                        bestMove = c;
+                    cells[bottom][c] = null; // restore cells
+                    colSum[c]--;
+                    cellsCnt--;
+                }
+            }
+
+            // then check for forbidden move so not to let human win afte AI plays
+            List<int> forbiddenMoves = new List<int>();
+            for (int c = 0; bestMove < 0 && c < tableCols; c++)
+            {
+                if (!isColumnFull(c))
+                {
+                    int bottom = tableRows - colSum[c] - 1;
+                    cells[bottom][c] = team2; // play the AI piece virtually
+                    colSum[c]++;
+                    cellsCnt++;
+                    if (!isColumnFull(c))
+                    {
+                        int newBottom = tableRows - colSum[c] - 1;
+                        cells[newBottom][c] = team1; // play the human piece virtually
+                        colSum[c]++;
+                        cellsCnt++;
+                        if (checkForWinner(c, team1))
+                            forbiddenMoves.Add(c);
+                        cells[newBottom][c] = null; // restore cells
+                        colSum[c]--;
+                        cellsCnt--;
+                    }
+                    cells[bottom][c] = null; // restore cells
+                    colSum[c]--;
+                    cellsCnt--;
+                }
+            }
+
+            // Return best if it exists
+            if (bestMove >= 0)
+                return bestMove;
+
+            // else return a random move in a not full column an not in a forbidden col
+            List<int> possibleMoves = new List<int>();
+            for (int c = 0; c < tableCols; c++)
+                if (!isColumnFull(c) && !forbiddenMoves.Contains(c))
+                    possibleMoves.Add(c);
+            if (possibleMoves.Count > 0)
+            {
+                Random r = new Random();
+                int rMove = r.Next(possibleMoves.Count);
+                return possibleMoves[rMove];
+            }
+            else
+                return forbiddenMoves[0]; // we lost
         }
 
         // EVENTS
@@ -230,7 +316,7 @@ namespace Score4
         {
             bool moveLeft = (selectedPos > 0) &&
                 ((e.Key == Key.Left && currentTeam == team1) || (e.Key == Key.A && currentTeam == team2));
-            bool moveRight = (selectedPos < grdBoard.ColumnDefinitions.Count() - 1) && 
+            bool moveRight = (selectedPos < tableCols - 1) && 
                 ((e.Key == Key.Right && currentTeam == team1) || (e.Key == Key.D && currentTeam == team2));
             bool moveDown = (!isColumnFull(selectedPos)) && 
                 ((e.Key == Key.Down && currentTeam == team1) || (e.Key == Key.S && currentTeam == team2));
@@ -249,7 +335,12 @@ namespace Score4
                 if (moveDown)
                 {
                     grdSelector.Children.Remove(playingPawn);
-                    insertPawn();
+                    insertPawn(selectedPos);
+                    if (currentTeam == team2)
+                    {
+                        int colFromAI = findBestMove_AI();
+                        insertPawn(colFromAI);
+                    }
                 }
             }
         }
