@@ -21,8 +21,9 @@ namespace Score4
         {
             if (TeamColor == Colors.Yellow)
                 return "Yellow";
-            else
+            if (TeamColor == Colors.Red)
                 return "Red";
+            return "Undefined";
         }
 
         // PUBLIC PROPERTIES
