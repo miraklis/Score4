@@ -26,9 +26,14 @@ namespace Score4
         public bool IsBoardFull => pawnsCounter >= tableRows * tableCols;
         public bool IsColumnFull(int col) => numPawnsPerCol[col] >= tableRows;
 
-        public int ColumnBottom(int col)
+        public int BottomRow(int col)
         {
             return tableRows - numPawnsPerCol[col] - 1;
+        }
+
+        public int TopPawnRow(int col)
+        {
+            return tableRows - numPawnsPerCol[col];
         }
 
         public void Clear()
@@ -47,12 +52,23 @@ namespace Score4
 
         public bool PutPawn(Pawn p, int col)
         {
-            int bottom = ColumnBottom(col);
-            if (bottom >= 0)
+            if (!IsColumnFull(col))
             {
-                cells[bottom][col] = p;
+                cells[BottomRow(col)][col] = p;
                 numPawnsPerCol[col]++;
                 pawnsCounter++;
+                return true;
+            }
+            return false;
+        }
+
+        public bool RemovePawn(int col)
+        {
+            if (TopPawnRow(col) < tableRows)
+            {
+                cells[TopPawnRow(col)][col] = null;
+                numPawnsPerCol[col]--;
+                pawnsCounter--;
                 return true;
             }
             return false;
@@ -65,9 +81,10 @@ namespace Score4
             int r, c;
 
             // check horizontal
-            for (r = 0; !winnerSeqFound && r < cells.Length; r++)
+            for (r = 0; !winnerSeqFound && r < tableRows; r++)
             {
-                for (c = 0; !winnerSeqFound && c < cells[r].Length; c++)
+                winningPawns.Clear();
+                for (c = 0; !winnerSeqFound && c < tableCols; c++)
                 {
                     if (cells[r][c] == p)
                     {
@@ -81,9 +98,10 @@ namespace Score4
             }
 
             // check vertical
-            for (c = 0; !winnerSeqFound && c < cells[0].Length; c++)
+            for (c = 0; !winnerSeqFound && c < tableCols; c++)
             {
-                for (r = 0; !winnerSeqFound && r < cells.Length; r++)
+                winningPawns.Clear();
+                for (r = 0; !winnerSeqFound && r < tableRows; r++)
                 {
                     if (cells[r][c] == p)
                     {
@@ -99,6 +117,7 @@ namespace Score4
             // check diagonals (top left -> bottom right)
             for (int rr = 2; !winnerSeqFound && rr >= 0; rr--)
             {
+                winningPawns.Clear();
                 for (r = rr, c = 0; !winnerSeqFound && r < tableRows && c < tableCols; r++, c++)
                 {
                     if (cells[r][c] == p)
@@ -113,6 +132,7 @@ namespace Score4
             }
             for (int cc = 1; !winnerSeqFound && cc < 4; cc++)
             {
+                winningPawns.Clear();
                 for (r = 0, c = cc; !winnerSeqFound && r < tableRows && c < tableCols; r++, c++)
                 {
                     if (cells[r][c] == p)
@@ -129,6 +149,7 @@ namespace Score4
             // check diagonals (top right -> bottom left)
             for (int rr = 2; !winnerSeqFound && rr >= 0; rr--)
             {
+                winningPawns.Clear();
                 for (r = rr, c = tableCols - 1; !winnerSeqFound && r < tableRows && c >= 0; r++, c--)
                 {
                     if (cells[r][c] == p)
@@ -143,6 +164,7 @@ namespace Score4
             }
             for (int cc = tableCols - 2; !winnerSeqFound && cc > 2; cc--)
             {
+                winningPawns.Clear();
                 for (r = 0, c = cc; !winnerSeqFound && r < tableRows && c >= 0; r++, c--)
                 {
                     if (cells[r][c] == p)

@@ -59,6 +59,8 @@ namespace Score4
         {
             if((p1 is Pawn) && (p2 is Pawn))
                 return (p1.GetTeam() == p2.GetTeam());
+            if ((p1 is null) && (p2 is null))
+                return true;
             return false;
         }
 

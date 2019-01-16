@@ -16,6 +16,11 @@ namespace Score4
             Started,
             Finished
         }
+        public enum Kind
+        {
+            PvP, // Player vs Player
+            PvC  // Player vs CPU
+        }
         public enum Result
         {
             Winner,
@@ -26,6 +31,7 @@ namespace Score4
         public Game()
         {
             board = new Board();
+            ai = new AI(board);
             scores = new int[2];
             state = State.ReadyToStart;
         }
@@ -35,22 +41,19 @@ namespace Score4
         public Pawn CurrentPawn => currentPawn;
         public int CurrentTeam => currentTeam;
         public int CurrentSelection => selection;
-        public int GetSelectionBottom => board.ColumnBottom(selection);
+        public int GetSelectionBottom => board.BottomRow(selection);
         public bool CanDropPawn => !board.IsColumnFull(selection);
         public int[] GetScores => scores;
+        public Kind GetKind => kind;
 
-        public bool Start()
+        public bool Start(Kind k)
         {
-            if (state != State.Started)
-            {
-                state = State.Started;
-                board.Clear();
-                currentTeam = 0;
-                CreateNewPawn(currentTeam); // First team pawn (team 0)
-                ResetScores();
-                return true;
-            }
-            return false; // game is already started
+            state = State.Started;
+            kind = k;
+            board.Clear();
+            currentTeam = 0;
+            CreateNewPawn(currentTeam); // First team pawn (team 0)
+            return true;
         }
 
         public bool SelectLeftColumn()
@@ -68,6 +71,16 @@ namespace Score4
             if (selection < board.ColumnCount - 1)
             {
                 selection++;
+                return true;
+            }
+            return false;
+        }
+
+        public bool SetSelection(int col)
+        {
+            if(col >=0 && col < board.ColumnCount)
+            {
+                selection = col;
                 return true;
             }
             return false;
@@ -107,6 +120,11 @@ namespace Score4
             return currentTeam = currentTeam == 0 ? 1 : 0;
         }
 
+        public int AI_GetBestMove()
+        {
+            return ai.GetBestMove();
+        }
+
         // PRIVATE MEMBERS ****************
 
         private void finish(Result result)
@@ -131,7 +149,9 @@ namespace Score4
         }
 
         private State state;
+        private Kind kind;
         private Board board;
+        private AI ai;
         private Pawn currentPawn;
         private int[] scores;
         private int currentTeam;
