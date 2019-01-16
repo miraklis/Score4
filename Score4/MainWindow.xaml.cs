@@ -15,11 +15,6 @@ using System.Windows.Shapes;
 
 namespace Score4
 {
-    /// <summary>
-    /// Interaction logic for MainWindow.xaml
-    /// </summary>
-    /// 
-
     // GLOBAL ENUMS
 
     public enum GameState
