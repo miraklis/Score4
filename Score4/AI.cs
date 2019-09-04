@@ -8,16 +8,19 @@ namespace Score4
 {
     class AI
     {
+        // CONSTRUCTORS ***************
         public AI(Board b)
         {
             board = b;
         }
 
+        // PUBLIC MEMBERS *************
         public int GetBestMove()
         {
             return findBestMove();
         }
 
+        // PRIVATE MEMBERS ************
         private int findBestMove()
         {
             if (board.IsBoardFull)
@@ -53,7 +56,7 @@ namespace Score4
             if (bestMove >= 0)
                 return bestMove;
 
-            // then check for forbidden move so not to let human win afte AI plays
+            // then check for forbidden move so not to let human win after AI plays
             List<int> forbiddenMoves = new List<int>();
             for (int c = 0; bestMove < 0 && c < board.ColumnCount; c++)
             {
@@ -85,11 +88,9 @@ namespace Score4
             if (forbiddenMoves.Count > 0)
                 return forbiddenMoves[0]; // ai lost
 
-            return -1;
-
+            return -1; // could not find any legal move
         }
 
-        // PRIVATE MEMBERS
         Board board;
     }
 }

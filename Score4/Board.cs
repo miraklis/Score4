@@ -74,7 +74,7 @@ namespace Score4
             return false;
         }
 
-        public bool Check4Seq(Pawn p)
+        public bool Check4Seq(Pawn p, int pawnsInSeq = 4)
         {
             bool winnerSeqFound = false;
             winningPawns.Clear();
@@ -89,7 +89,7 @@ namespace Score4
                     if (cells[r][c] == p)
                     {
                         winningPawns.Add(cells[r][c]);
-                        if (winningPawns.Count >= winningSeq)
+                        if (winningPawns.Count >= pawnsInSeq)
                             winnerSeqFound = true;
                     }
                     else
@@ -106,7 +106,7 @@ namespace Score4
                     if (cells[r][c] == p)
                     {
                         winningPawns.Add(cells[r][c]);
-                        if (winningPawns.Count >= winningSeq)
+                        if (winningPawns.Count >= pawnsInSeq)
                             winnerSeqFound = true;
                     }
                     else
@@ -114,7 +114,7 @@ namespace Score4
                 }
             }
 
-            // check diagonals (top left -> bottom right)
+            // check left -> right diagonals
             for (int rr = 2; !winnerSeqFound && rr >= 0; rr--)
             {
                 winningPawns.Clear();
@@ -123,7 +123,7 @@ namespace Score4
                     if (cells[r][c] == p)
                     {
                         winningPawns.Add(cells[r][c]);
-                        if (winningPawns.Count >= winningSeq)
+                        if (winningPawns.Count >= pawnsInSeq)
                             winnerSeqFound = true;
                     }
                     else
@@ -138,7 +138,7 @@ namespace Score4
                     if (cells[r][c] == p)
                     {
                         winningPawns.Add(cells[r][c]);
-                        if (winningPawns.Count >= winningSeq)
+                        if (winningPawns.Count >= pawnsInSeq)
                             winnerSeqFound = true;
                     }
                     else
@@ -146,7 +146,7 @@ namespace Score4
                 }
             }
 
-            // check diagonals (top right -> bottom left)
+            // check right -> left diagonals
             for (int rr = 2; !winnerSeqFound && rr >= 0; rr--)
             {
                 winningPawns.Clear();
@@ -155,7 +155,7 @@ namespace Score4
                     if (cells[r][c] == p)
                     {
                         winningPawns.Add(cells[r][c]);
-                        if (winningPawns.Count >= winningSeq)
+                        if (winningPawns.Count >= pawnsInSeq)
                             winnerSeqFound = true;
                     }
                     else
@@ -170,7 +170,7 @@ namespace Score4
                     if (cells[r][c] == p)
                     {
                         winningPawns.Add(cells[r][c]);
-                        if (winningPawns.Count >= winningSeq)
+                        if (winningPawns.Count >= pawnsInSeq)
                             winnerSeqFound = true;
                     }
                     else

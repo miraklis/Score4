@@ -56,7 +56,7 @@ namespace Score4
 
         private void BtStart_Click(object sender, RoutedEventArgs e)
         {
-            if(game.CurrentState == Game.State.ReadyToStart ||
+            if(game.CurrentState != Game.State.Started ||
                 (MessageBox.Show("Are you sure you want to start a new Game?","Confirm",MessageBoxButton.YesNo)==MessageBoxResult.Yes))
                 startGame();
         }
